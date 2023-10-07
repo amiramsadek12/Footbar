@@ -1,0 +1,4 @@
+black==23.9.1
+numpy==1.26.0
+typing-extensions==4.8.0
+black[jupyter]
