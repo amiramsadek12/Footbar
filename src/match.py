@@ -1,6 +1,7 @@
 import json
 from typing import Dict, Union, List
 from collections import Counter
+import numpy as np
 
 
 class Match:
@@ -60,3 +61,22 @@ class Match:
                 sequence.append(action)
 
         return sequences
+
+    def average_data_norm(self) -> List[Dict[str, Union[str, float]]]:
+        return [
+            {"label": gait["label"], "norm": np.mean(gait["norm"])}
+            for gait in self.data
+        ]
+    
+    def mean_norm_for_each_action(
+        self, action:str
+    ) -> float:
+        """Returns the avearge norm of the actions.
+
+        Args:
+            match_data_averaged : JSON file containing match information with average norm.
+        """
+
+        return np.mean(
+            [gait["norm"] for gait in self.average_data_norm() if gait["label"] == action]
+        )
