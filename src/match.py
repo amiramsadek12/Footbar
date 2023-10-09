@@ -37,31 +37,6 @@ class Match:
         norm_lengths = [len(gait["norm"]) for gait in self.data]
         return {"MIN": min(norm_lengths), "MAX": max(norm_lengths)}
 
-    def extract_sequences(self) -> List[Union[List, str]]:
-        """Returns the different sequences of actions performed by a player.
-
-        Args:
-            match_data : JSON file containing match information.
-        """
-        actions = [gait["label"] for gait in self.data]
-        first_action = actions[0]
-        sequences = []
-        sequence = [first_action]
-
-        for index, action in enumerate(actions[1:]):
-            if action != first_action and (
-                index != len(actions) or actions[index + 1] == first_action
-            ):
-                sequence.append(action)
-                sequences.append(sequence)
-                first_action = actions[index + 1]
-                sequence = [first_action]
-
-            else:
-                sequence.append(action)
-
-        return sequences
-
     def average_data_norm(self) -> List[Dict[str, Union[str, float]]]:
         return [
             {"label": gait["label"], "norm": np.mean(gait["norm"])}
@@ -83,3 +58,24 @@ class Match:
                 if gait["label"] == action
             ]
         )
+
+    @property
+    def mean_norm_per_action(self) -> Dict:
+        """
+        Returns a dictionary containing the different actions
+        in a match along with their averaged norm.
+
+        """
+        return {
+            action: self.mean_norm_for_each_action(action)
+            for action in list((self.count_actions()).keys())
+        }
+
+    def extract_sequences(self) -> List:
+        """Returns a list of all the sequences in an accumulative way."""
+        sequence = []
+        sequences = []
+        for action in self.data:
+            sequence.append(action["label"])
+            sequences.append(sequence)
+        return sequences

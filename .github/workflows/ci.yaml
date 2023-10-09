@@ -24,4 +24,4 @@ jobs:
           python linter.py 
       - name: Unit tests
         run: |
-          python -m pytest tests/unit/match.py 
+          python -m pytest tests/unit/
