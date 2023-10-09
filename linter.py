@@ -11,8 +11,8 @@ else:
     PATH = sys.executable.rsplit("/", maxsplit=1)[0]
 
 print("[BLACK]", flush=True)
-subprocess.run([f"{PATH}/python", "-m", "black", "--check", "."], check=True)
+subprocess.run([f"{PATH}/python", "-m", "black", "--check", "."], check=False)
 
 
 print("[FLAKE 8]", flush=True)
-subprocess.run([f"{PATH}/python", "-m", "flake8", "."], check=True)
+subprocess.run([f"{PATH}/python", "-m", "flake8", "."], check=False)

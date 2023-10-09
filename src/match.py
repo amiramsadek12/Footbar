@@ -72,7 +72,8 @@ class Match:
         """Returns the avearge norm of the actions.
 
         Args:
-            match_data_averaged : JSON file containing match information with average norm.
+            match_data_averaged : JSON file containing match information
+              with average norm.
         """
 
         return np.mean(

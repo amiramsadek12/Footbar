@@ -51,8 +51,10 @@ def test_extract_sequences(path_to_test_match, expected_results):
     assert test_match.extract_sequences() == expected_results
 
 
-@pytest.mark.parametrize("action, expected_results", [("walk", 3.202777777777778), ("rest", 3.4000000000000004)])
-
+@pytest.mark.parametrize(
+    "action, expected_results",
+    [("walk", 3.202777777777778), ("rest", 3.4000000000000004)],
+)
 def test_mean_norm_for_each_action(action, expected_results):
     test_match = Match("tests/unit/test_data/test_match_1.json")
     assert test_match.mean_norm_for_each_action(action) == expected_results
