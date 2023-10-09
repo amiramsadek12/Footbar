@@ -21,7 +21,7 @@ jobs:
           export PYTHONPATH=$PWD
       - name: Static tests
         run: |
-          python linter.py || exit 1
+          python linter.py 
       - name: Unit tests
         run: |
-          python -m pytest tests/unit/match.py || exit 1
+          python -m pytest tests/unit/match.py 
