@@ -67,10 +67,8 @@ class Match:
             {"label": gait["label"], "norm": np.mean(gait["norm"])}
             for gait in self.data
         ]
-    
-    def mean_norm_for_each_action(
-        self, action:str
-    ) -> float:
+
+    def mean_norm_for_each_action(self, action: str) -> float:
         """Returns the avearge norm of the actions.
 
         Args:
@@ -78,5 +76,9 @@ class Match:
         """
 
         return np.mean(
-            [gait["norm"] for gait in self.average_data_norm() if gait["label"] == action]
+            [
+                gait["norm"]
+                for gait in self.average_data_norm()
+                if gait["label"] == action
+            ]
         )
