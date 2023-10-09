@@ -39,7 +39,10 @@ class Match:
 
     def average_data_norm(self) -> List[Dict[str, Union[str, float]]]:
         return [
-            {"label": gait["label"], "norm": np.mean(gait["norm"])}
+            {
+                "label": gait["label"],
+                "norm": np.round(np.mean(gait["norm"]), decimals=2),
+            }
             for gait in self.data
         ]
 
@@ -73,9 +76,7 @@ class Match:
 
     def extract_sequences(self) -> List:
         """Returns a list of all the sequences in an accumulative way."""
-        sequence = []
         sequences = []
-        for action in self.data:
-            sequence.append(action["label"])
-            sequences.append(sequence)
+        for index, _ in enumerate(self.average_data_norm()):
+            sequences.append(self.average_data_norm()[0 : index + 1])
         return sequences
