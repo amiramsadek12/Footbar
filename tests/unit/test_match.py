@@ -59,7 +59,10 @@ def test_mean_norm_per_action(path_to_test_match, expected_results):
             "tests/unit/test_data/test_match_1.json",
             [
                 [{"label": "walk", "norm": 1.70}],
-                [{"label": "walk", "norm": 1.70}, {"label": "walk", "norm": 4.83}],
+                [
+                    {"label": "walk", "norm": 1.70},
+                    {"label": "walk", "norm": 4.83},
+                ],  # ignore: E501
                 [
                     {"label": "walk", "norm": 1.70},
                     {"label": "walk", "norm": 4.83},
@@ -93,3 +96,17 @@ def test_extract_sequences(path_to_test_match, expected_results):
 def test_average_gait_length_per_action(path_to_test_match, expected_results):
     test_match = Match(path_to_test_match)
     assert test_match.average_gait_length_per_action == expected_results
+
+
+@pytest.mark.parametrize(
+    "path_to_test_match, expected_results",
+    [
+        (
+            "tests/unit/test_data/test_match_1.json",
+            {"walk": {"walk": 2, "rest": 1}},
+        ),
+    ],
+)
+def test_compute_correlation(path_to_test_match, expected_results):
+    test_match = Match(path_to_test_match)
+    assert test_match.compute_correlation() == expected_results

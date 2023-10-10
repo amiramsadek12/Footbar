@@ -2,6 +2,7 @@ import json
 from typing import Dict, Union, List
 from collections import Counter
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 class Match:
@@ -67,8 +68,44 @@ class Match:
         """Returns a list of all the sequences in an accumulative way."""
         sequences = []
         for index, _ in enumerate(self.average_data_norm()):
-            sequences.append(self.average_data_norm()[0 : index + 1])
+            sequences.append(self.average_data_norm()[0 : index + 1])  # noqa : E203
         return sequences
+
+    def compute_correlation(self) -> Dict[str, Dict[str, int]]:
+        """Computes the correlation between different actions and
+        prints the results in the console.
+        """
+        correlation = {}
+
+        for index in range(len(self.data) - 1):
+            current_action = self.data[index]["label"]
+            next_action = self.data[index + 1]["label"]
+
+            if current_action not in list(correlation.keys()):
+                correlation[current_action] = {}
+
+            if next_action not in correlation[current_action].keys():
+                correlation[current_action][next_action] = 1
+            else:
+                correlation[current_action][next_action] += 1
+        return correlation
+
+    def plot_correlation_per_action(self, action: str) -> None:
+        """Plot the correlation of a given action against all present actions.
+
+        Args:
+            action: given action.
+        """
+        correlated_actions = self.compute_correlation()[action]
+        next_action_labels = list(correlated_actions.keys())
+        next_action_counts = list(correlated_actions.values())
+
+        plt.figure(figsize=(10, 5))
+        plt.bar(next_action_labels, next_action_counts)
+        plt.title(f"Actions following {action}")
+        plt.xlabel("Next Actions")
+        plt.ylabel("Count")
+        plt.show()
 
     @property
     def mean_norm_per_action(self) -> Dict:
