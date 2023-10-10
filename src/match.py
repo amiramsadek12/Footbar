@@ -17,6 +17,7 @@ class Match:
         self.data: List[Dict[str, Union[str, float, List[float]]]] = json.load(
             fp=match_file
         )
+        self.actions = set(gait["label"] for gait in self.data)
 
     def info(self) -> None:
         """Prints the number of actions in the match."""
@@ -62,6 +63,13 @@ class Match:
             ]
         )
 
+    def extract_sequences(self) -> List:
+        """Returns a list of all the sequences in an accumulative way."""
+        sequences = []
+        for index, _ in enumerate(self.average_data_norm()):
+            sequences.append(self.average_data_norm()[0 : index + 1])
+        return sequences
+
     @property
     def mean_norm_per_action(self) -> Dict:
         """
@@ -74,9 +82,18 @@ class Match:
             for action in list((self.count_actions()).keys())
         }
 
-    def extract_sequences(self) -> List:
-        """Returns a list of all the sequences in an accumulative way."""
-        sequences = []
-        for index, _ in enumerate(self.average_data_norm()):
-            sequences.append(self.average_data_norm()[0 : index + 1])
-        return sequences
+    @property
+    def average_gait_length_per_action(self) -> Dict[str, int]:
+        """Compute the average length of the gait based on the action."""
+        return {
+            action: int(
+                np.mean(
+                    [
+                        len(element["norm"])
+                        for element in self.data
+                        if element["label"] == action
+                    ]
+                )
+            )
+            for action in self.actions
+        }

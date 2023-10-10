@@ -78,3 +78,18 @@ def test_mean_norm_per_action(path_to_test_match, expected_results):
 def test_extract_sequences(path_to_test_match, expected_results):
     test_match = Match(path_to_test_match)
     assert test_match.extract_sequences() == expected_results
+
+
+@pytest.mark.parametrize(
+    "path_to_test_match, expected_results",
+    [
+        ("tests/unit/test_data/test_match_1.json", {"walk": 3, "rest": 6}),
+        (
+            "tests/unit/test_data/test_match_2.json",
+            {"walk": 9, "run": 4, "rest": 11, "dribble": 3},
+        ),
+    ],
+)
+def test_average_gait_length_per_action(path_to_test_match, expected_results):
+    test_match = Match(path_to_test_match)
+    assert test_match.average_gait_length_per_action == expected_results
