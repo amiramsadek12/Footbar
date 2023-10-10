@@ -18,7 +18,10 @@ class LabelEncoder:
 
     def fit(self, data: List[str]) -> None:
         """Fit the encoder to the given data."""
-        classes = np.unique(data)
+        if isinstance(data[0], str):
+            classes = np.unique(data)
+        else:
+            classes = set(element for sequence in data for element in sequence)
         for index, class_ in enumerate(classes):
             self.class_to_index[class_] = index
         self.index_to_class = {v: k for k, v in self.class_to_index.items()}
@@ -26,10 +29,17 @@ class LabelEncoder:
 
     def encode(self, data: List[str]) -> List[int]:
         """Encode the given data using the fitted mapping."""
-        encoded = np.zeros(len(data), dtype=int)
-        for index, item in enumerate(data):
-            encoded[index] = self.class_to_index[item]
-        return encoded.tolist()
+        if data == []:
+            return
+        if isinstance(data[0], str):
+            encoded = np.zeros(len(data), dtype=int)
+            for index, item in enumerate(data):
+                encoded[index] = self.class_to_index[item]
+        if isinstance(data[0], list):
+            encoded = []
+            for element in data:
+                encoded.append(self.encode(element))
+        return list(encoded)
 
     def decode(self, data: List[int]) -> List[str]:
         """Decode the given encoded data."""

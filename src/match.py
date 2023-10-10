@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Set
 from collections import Counter
 import numpy as np
 from matplotlib import pyplot as plt
@@ -18,7 +18,6 @@ class Match:
         self.data: List[Dict[str, Union[str, float, List[float]]]] = json.load(
             fp=match_file
         )
-        self.actions = set(gait["label"] for gait in self.data)
 
     def info(self) -> None:
         """Prints the number of actions in the match."""
@@ -106,6 +105,11 @@ class Match:
         plt.xlabel("Next Actions")
         plt.ylabel("Count")
         plt.show()
+
+    @property
+    def actions(self) -> Set:
+        """Returns the actions performed in a match."""
+        return set(gait["label"] for gait in self.data)
 
     @property
     def mean_norm_per_action(self) -> Dict:
