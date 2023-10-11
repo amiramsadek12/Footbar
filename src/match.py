@@ -64,11 +64,53 @@ class Match:
         )
 
     def extract_sequences(self) -> List:
-        """Returns a list of all the sequences in an accumulative way."""
+        """Returns a list of all the sequences composed of all possible
+        actions to be performed in a match in an accumulative way and only
+        allow for an action to appear 3 times before another action comes
+        in and only keep the latest 20 actions performed by the player."""
         sequences = []
         for index, _ in enumerate(self.average_data_norm()):
             sequences.append(self.average_data_norm()[0 : index + 1])  # noqa : E203
-        return sequences
+
+        sequences_with_only_actions = []
+        for element in sequences:
+            sequences_with_only_actions.append(
+                [nested_element["label"] for nested_element in element]
+            )
+
+        new_sequences = [sequences_with_only_actions[0]]
+
+        for sequence in sequences_with_only_actions:
+            new_sequence = [sequence[0]]
+            for action in sequence:
+                consecutive_count = 1  # Counter for consecutive appearances
+                max_consecutive = 3  # Maximum allowed consecutive appearances
+
+                for action in sequence[1:]:
+                    if action != new_sequence[-1]:
+                        # Check if the action is different
+                        # from the previous one
+                        new_sequence.append(action)
+                        consecutive_count = 1  # Reset the consecutive count
+                    elif consecutive_count < max_consecutive:
+                        new_sequence.append(action)
+                        consecutive_count += 1
+            new_sequences.append(new_sequence[-20:])
+
+        return new_sequences
+
+    def clean_data(self) -> List[List[str]]:
+        """Remove all sequences that where only
+        'walk' and 'run' are present."""
+        all_sequences = self.extract_sequences()
+        element_indices_to_be_deleted = []
+        for index, sequence in enumerate(all_sequences):
+            if all(item in ["walk", "run"] for item in sequence):
+                element_indices_to_be_deleted.append(index)
+        for index in element_indices_to_be_deleted:
+            all_sequences.pop(index)
+
+        return all_sequences
 
     def compute_correlation(self) -> Dict[str, Dict[str, int]]:
         """Computes the correlation between different actions and

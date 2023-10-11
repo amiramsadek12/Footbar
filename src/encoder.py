@@ -34,7 +34,7 @@ class LabelEncoder:
         if isinstance(data[0], str):
             encoded = np.zeros(len(data), dtype=int)
             for index, item in enumerate(data):
-                encoded[index] = self.class_to_index[item]
+                encoded[index] = self.class_to_index.get(item, "<Undefined>")
         if isinstance(data[0], list):
             encoded = []
             for element in data:

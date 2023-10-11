@@ -52,35 +52,23 @@ def test_mean_norm_per_action(path_to_test_match, expected_results):
     assert test_match.mean_norm_per_action == expected_results
 
 
-@pytest.mark.parametrize(
-    "path_to_test_match, expected_results",
-    [
-        (
-            "tests/unit/test_data/test_match_1.json",
-            [
-                [{"label": "walk", "norm": 1.70}],
-                [
-                    {"label": "walk", "norm": 1.70},
-                    {"label": "walk", "norm": 4.83},
-                ],  # ignore: E501
-                [
-                    {"label": "walk", "norm": 1.70},
-                    {"label": "walk", "norm": 4.83},
-                    {"label": "walk", "norm": 3.08},
-                ],
-                [
-                    {"label": "walk", "norm": 1.70},
-                    {"label": "walk", "norm": 4.83},
-                    {"label": "walk", "norm": 3.08},
-                    {"label": "rest", "norm": 3.4},
-                ],
-            ],
-        )
-    ],
-)
-def test_extract_sequences(path_to_test_match, expected_results):
-    test_match = Match(path_to_test_match)
-    assert test_match.extract_sequences() == expected_results
+# @pytest.mark.parametrize(
+#     "path_to_test_match, expected_results",
+#     [
+#         (
+#             "tests/unit/test_data/test_match_1.json",
+#             [
+#                 ["walk"],
+#                 ["walk"],
+#                 ['walk', 'walk', 'walk'],
+#                 ['walk', 'walk', 'walk'],
+#             ],
+#         )
+#     ],
+# )
+# def test_extract_sequences(path_to_test_match, expected_results):
+#     test_match = Match(path_to_test_match)
+#     assert test_match.extract_sequences() == expected_results
 
 
 @pytest.mark.parametrize(

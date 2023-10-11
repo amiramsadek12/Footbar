@@ -1,0 +1,13 @@
+{
+    "class_to_index": {
+        "run": 0,
+        "walk": 1,
+        "tackle": 2,
+        "pass": 3,
+        "rest": 4,
+        "cross": 5,
+        "dribble": 6,
+        "shot": 7,
+        "<Undefined>": 18
+    }
+}
