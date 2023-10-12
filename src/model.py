@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from typing import List
 
 import tensorflow as tf
@@ -10,6 +11,10 @@ from keras.preprocessing.sequence import pad_sequences
 
 
 from encoder import LabelEncoder
+
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import joblib
 
 
 NUM_EPOCHS = 100
@@ -139,4 +144,61 @@ class ActionModel:
         """Load saved model."""
         instance = cls(encoder)
         instance.model = tf.keras.models.load_model(fp)
+        return instance
+
+
+class GaitLengthPredictor:
+    """Base model for predicting the gait length based on the action."""
+
+    def __init__(self) -> None:
+        self.model = RandomForestRegressor(n_estimators=100, random_state=1234)
+
+    def fit(self, X, y) -> None:
+        """Train the model on the provided data."""
+        self.model.fit(X, y)
+
+    def predict(self, X) -> np.ndarray:
+        return self.model.predict(X)
+
+    def evaluate(self, X_val, y_val, X_test, y_test) -> None:
+        """Evaluate model performance against val and test set."""
+        y_val_pred = self.model.predict(X_val)
+        val_mae = mean_absolute_error(y_val, y_val_pred)
+        val_mse = mean_squared_error(y_val, y_val_pred)
+        val_rmse = mean_squared_error(y_val, y_val_pred, squared=False)
+        val_r2 = r2_score(y_val, y_val_pred)
+
+        print(
+            "Validation Metrics: \n"
+            f"MAE: {val_mae} \n"
+            f"MSE: {val_mse} \n"
+            f"RMSE: {val_rmse} \n"
+            f"R-squared (R2): {val_r2}\n"
+        )
+
+        y_test_pred = self.model.predict(X_test)
+        # Calculate evaluation metrics on the test set
+        test_mae = mean_absolute_error(y_test, y_test_pred)
+        test_mse = mean_squared_error(y_test, y_test_pred)
+        test_rmse = mean_squared_error(y_test, y_test_pred, squared=False)
+        test_r2 = r2_score(y_test, y_test_pred)
+
+        print(
+            "Test Metrics: \n"
+            f"MAE: {test_mae} \n"
+            f"MSE: {test_mse} \n"
+            f"RMSE: {test_rmse} \n"
+            f"R-squared (R2): {test_r2}\n"
+        )
+
+    def save(self, fp="../data/model/gait_model.pkl"):
+        """Save the model."""
+        joblib.dump(self.model, fp)
+
+    @classmethod
+    def load(cls, fp="../data/model/gait_model.pkl"):
+        """load the model."""
+        loaded_model = joblib.load(fp)
+        instance = cls()
+        instance.model = loaded_model
         return instance

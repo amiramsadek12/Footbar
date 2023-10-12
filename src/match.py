@@ -1,8 +1,11 @@
 import json
+import os
 from typing import Dict, Union, List, Set
 from collections import Counter
 import numpy as np
 from matplotlib import pyplot as plt
+
+from utils import save_to_json
 
 
 class Match:
@@ -147,6 +150,17 @@ class Match:
         plt.xlabel("Next Actions")
         plt.ylabel("Count")
         plt.show()
+
+    def __add__(self, other):
+        if isinstance(other, Match):
+            dummy_path = "data.dummy_match.json"
+            combined_sequences = self.data + other.data
+            save_to_json(object_to_save=combined_sequences, path=dummy_path)
+            dummy_match = Match(dummy_path)
+            os.remove(dummy_path)
+            return dummy_match
+        else:
+            raise TypeError("Unsupported operand type for +")
 
     @property
     def actions(self) -> Set:
