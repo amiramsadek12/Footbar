@@ -1,8 +1,13 @@
 import json
+import os
+
+
 from data.data import Data
 from match import Match
 from encoder import LabelEncoder
+from utils import save_to_json
 
+import numpy as np
 from typing import Tuple, Any, Union
 
 
@@ -13,10 +18,41 @@ RANDOM_STATE = 1234
 
 
 class NormLengthData(Data):
-    def __init__(self, match: Match) -> None:
-        self.match = match
-        self.X = [[element["label"]] for element in match.data]
-        self.y = [len(element["norm"]) for element in match.data]
+    def __init__(
+        self, match: Union[Match, str], encoder: Union[LabelEncoder, str] = None
+    ) -> None:
+        if isinstance(match, Match) and isinstance(encoder, LabelEncoder):
+            self.match = match
+            self.encoder = encoder
+        if isinstance(match, str) and isinstance(encoder, str):
+            # Create a match from a file holding only data.
+            self.match = Match(match)
+            self.encoder = LabelEncoder.load(encoder)
+
+        self.X = [[element["label"]] for element in self.match.data]
+        self.y = [len(element["norm"]) for element in self.match.data]
+
+    @property
+    def action_interval(self):
+        empty_sequences_count = 0
+        result = {}
+        for action in self.match.actions:
+            try:
+                encoded_action = self.encoder.encode([action])
+                data = [
+                    len(element["norm"])
+                    for element in self.match.data
+                    if element["label"] == action
+                ]
+                result[encoded_action[0]] = [
+                    np.mean(data),
+                    np.std(data),
+                ]
+            except TypeError:
+                empty_sequences_count += 1
+        if empty_sequences_count != 0:
+            print(f"Skipping {empty_sequences_count} sequences as they are empty.")
+        return result
 
     def train_test_split(self, X, y, train_size=0.7) -> None:
         self.X_train, _X, self.y_train, _y = train_test_split(
@@ -56,20 +92,24 @@ class NormLengthData(Data):
     def __add__(self, other):
         if isinstance(other, NormLengthData):
             combined_match = self.match + other.match
-            return NormLengthData(combined_match)
+            return NormLengthData(combined_match, encoder=self.encoder)
         else:
             raise TypeError("Unsupported operand type for +")
 
-    def save(self, fp: str) -> None:
-        with open(fp, "w") as fp:
-            contents = {
-                element[0]: element[1] for element in zip(self.X, self.y)
-            }  # noqa:E501
-            json.dump(contents, fp, indent=4, sort_keys=False)
+    def save(self, fp="../data/gait_data/gait_data.json"):
+        """Save the data."""
+        with open(fp, "w") as file:
+            json.dump(
+                {
+                    "match": "../data/gait_data/match_data.json",
+                    "encoder": "../data/gait_data/encoder.json",
+                },
+                file,
+            )
 
     @classmethod
-    def load(cls, fp):
-        """Create an instance from a saved file."""
-        with open(fp, "r") as fp:
-            kwargs = json.load(fp=fp)
+    def load(cls, fp="../data/gait_data/gait_data.json"):
+        """load the model."""
+        with open(fp, "r") as file:
+            kwargs = json.load(file)
         return cls(**kwargs)
