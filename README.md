@@ -41,6 +41,6 @@ You may use VSCode to run the `entry.ipynb` notebook and follow the provided ins
 
 #### TODOs:
 - Complete the test for all classes
-- Implement `Re-inforcment Learning` instead of the hacky approach in **ActionModel.predict_standalone**
+- Implement `Re-inforcment Learning` instead of the hacky approach in [**ActionModel.predict_standalone**](https://github.com/amiramsadek12/Footbar/blob/main/src/model.py)
 - Create a `FastAPI` server to expose model endpoint to make it possible to ship it through a `Docker` container.
 
