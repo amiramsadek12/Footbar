@@ -1,11 +1,9 @@
 import json
-import os
 
 
 from data.data import Data
 from match import Match
 from encoder import LabelEncoder
-from utils import save_to_json
 
 import numpy as np
 from typing import Tuple, Any, Union
@@ -19,9 +17,11 @@ RANDOM_STATE = 1234
 
 class NormLengthData(Data):
     def __init__(
-        self, match: Union[Match, str], encoder: Union[LabelEncoder, str] = None
+        self,
+        match: Union[Match, str],
+        encoder: Union[LabelEncoder, str] = None,  # noqa:E501
     ) -> None:
-        if isinstance(match, Match) and isinstance(encoder, LabelEncoder):
+        if isinstance(match, Match) and isinstance(encoder, LabelEncoder):  # noqa:E501
             self.match = match
             self.encoder = encoder
         if isinstance(match, str) and isinstance(encoder, str):
@@ -51,7 +51,9 @@ class NormLengthData(Data):
             except TypeError:
                 empty_sequences_count += 1
         if empty_sequences_count != 0:
-            print(f"Skipping {empty_sequences_count} sequences as they are empty.")
+            print(
+                f"Skipping {empty_sequences_count} sequences as they are empty."  # noqa:E501
+            )
         return result
 
     def train_test_split(self, X, y, train_size=0.7) -> None:

@@ -19,7 +19,9 @@ class Match:
         """
         if path:
             match_file = open(path)
-            self.data: List[Dict[str, Union[str, float, List[float]]]] = json.load(
+            self.data: List[
+                Dict[str, Union[str, float, List[float]]]
+            ] = json.load(  # noqa:E501
                 fp=match_file
             )
             self.path = path

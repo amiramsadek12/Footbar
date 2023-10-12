@@ -10,15 +10,15 @@ import joblib
 from typing import Union, Tuple, Any
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 RANDOM_STATE = 1234
 
 
 class NormValuesData(Data):
-    def __init__(self, match: Union[Match, str], encoder: Union[LabelEncoder, str]):
+    def __init__(
+        self, match: Union[Match, str], encoder: Union[LabelEncoder, str]
+    ):  # noqa:E501
         if isinstance(match, Match) and isinstance(encoder, LabelEncoder):
             self.match = match
             self.encoder = encoder
@@ -32,7 +32,9 @@ class NormValuesData(Data):
             for element in self.match.data
             for _ in range(len(element["norm"]))
         ]
-        self.y = [[norm] for element in self.match.data for norm in element["norm"]]
+        self.y = [
+            [norm] for element in self.match.data for norm in element["norm"]
+        ]  # noqa:E501
         try:
             self.scaler = joblib.load("../data/model/scaler.pkl")
         except FileNotFoundError:
@@ -57,7 +59,9 @@ class NormValuesData(Data):
             except TypeError:
                 empty_sequences_count += 1
         if empty_sequences_count != 0:
-            print(f"Skipping {empty_sequences_count} sequences as they are empty.")
+            print(
+                f"Skipping {empty_sequences_count} sequences as they are empty."  # noqa:E501
+            )
         return result
 
     def train_test_split(self, X, y, train_size=0.7) -> None:

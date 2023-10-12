@@ -102,8 +102,12 @@ class ActionModel:
         predicted_classes = predictions.argmax(axis=1)
         predicted_action = self.encoder.decode(predicted_classes)
         if predicted_action[0] == X[-1] and predicted_action[0] == X[-2]:
-            second_best_predicted_classes = predictions.argsort(axis=1)[:, -2:-1]
-            predicted_action = self.encoder.decode(second_best_predicted_classes[0])
+            second_best_predicted_classes = predictions.argsort(axis=1)[
+                :, -2:-1
+            ]  # noqa:E501
+            predicted_action = self.encoder.decode(
+                second_best_predicted_classes[0]
+            )  # noqa:E501
         return predicted_action
 
     def predict(self, X) -> int:
