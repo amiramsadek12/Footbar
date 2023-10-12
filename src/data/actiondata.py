@@ -46,6 +46,18 @@ class ActionData(Data):
             y_test_transformed,
         )
 
+    def item_transform(self, encoder: LabelEncoder, item) -> Tuple[Any]:
+        return encoder.encode(item)
+
+    def pad_sequence(self, item):
+        return pad_sequences(
+            item,
+            padding="pre",
+            truncating="pre",
+            maxlen=MAX_SEQUENCE_LENGTH,
+            value=18,
+        )
+
     def pad_sequences(
         self, X_train_transformed, X_val_transformed, X_test_transformed
     ) -> Tuple[Any]:

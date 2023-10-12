@@ -17,10 +17,16 @@ class Match:
         Args:
             path:  path of match data JSON file.
         """
-        match_file = open(path)
-        self.data: List[Dict[str, Union[str, float, List[float]]]] = json.load(
-            fp=match_file
-        )
+        if path:
+            match_file = open(path)
+            self.data: List[Dict[str, Union[str, float, List[float]]]] = json.load(
+                fp=match_file
+            )
+            self.path = path
+            # Drop "no action" as it only figures twice in the second match
+            for index, element in enumerate(self.data):
+                if element["label"] == "no action":
+                    self.data.pop(index)
 
     def info(self) -> None:
         """Prints the number of actions in the match."""
@@ -194,3 +200,12 @@ class Match:
             )
             for action in self.actions
         }
+
+    def to_json(self) -> Dict:
+        return self.data
+
+    @classmethod
+    def from_data(cls, data):
+        instance = cls(None)
+        instance.data = data
+        return instance

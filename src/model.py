@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import List
+import joblib
+import random
 
 import tensorflow as tf
 from keras.models import Model
@@ -12,9 +14,11 @@ from keras.preprocessing.sequence import pad_sequences
 
 from encoder import LabelEncoder
 
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-import joblib
+
+from data.normlengthdata import NormLengthData
+from data.normvaluesdata import NormValuesData
 
 
 NUM_EPOCHS = 100
@@ -97,12 +101,14 @@ class ActionModel:
         predictions = self.model.predict(padded_test_case)
         predicted_classes = predictions.argmax(axis=1)
         predicted_action = self.encoder.decode(predicted_classes)
+        if predicted_action == X[-1] and predicted_action == X[-2]:
+            predicted_classes = predictions.argsort(axis=1)[-2]
+            predicted_action = self.encoder.decode(predicted_classes)
         return predicted_action
 
     def predict(self, X) -> int:
         """Run prediction on a single sequence X."""
-        predictions = self.model.predict(X)
-        return predictions.argmax(axis=1)
+        return self.model.predict(X)
 
     def evaluate(self, X, y) -> None:
         """Evaluate model performance using given data."""
@@ -150,7 +156,8 @@ class ActionModel:
 class GaitLengthPredictor:
     """Base model for predicting the gait length based on the action."""
 
-    def __init__(self) -> None:
+    def __init__(self, data: NormLengthData) -> None:
+        self.data = data
         self.model = RandomForestRegressor(n_estimators=100, random_state=1234)
 
     def fit(self, X, y) -> None:
@@ -158,7 +165,17 @@ class GaitLengthPredictor:
         self.model.fit(X, y)
 
     def predict(self, X) -> np.ndarray:
-        return self.model.predict(X)
+        y_pred = self.model.predict(np.array(X).reshape(1, -1))
+        action_mean_value, action_std_value = self.data.action_interval[X]
+        lower_bound = action_mean_value - 2 * action_std_value
+        upper_bound = action_mean_value + 2 * action_std_value
+        choices = range(int(lower_bound), int(upper_bound))
+        y_pred_clipped = np.clip(
+            y_pred,
+            random.choice(choices),
+            random.choice(choices),
+        )
+        return int(y_pred_clipped)
 
     def evaluate(self, X_val, y_val, X_test, y_test) -> None:
         """Evaluate model performance against val and test set."""
@@ -199,6 +216,81 @@ class GaitLengthPredictor:
     def load(cls, fp="../data/model/gait_model.pkl"):
         """load the model."""
         loaded_model = joblib.load(fp)
-        instance = cls()
+        loaded_data = NormLengthData.load()
+        instance = cls(data=loaded_data)
+        instance.model = loaded_model
+        return instance
+
+
+class GaitValuesPredictor:
+    """Base model for predicting the values in the gait based on the action."""
+
+    def __init__(self, data: NormValuesData) -> None:
+        self.data = data
+        self.model = GradientBoostingRegressor(
+            n_estimators=50, learning_rate=0.01, random_state=42
+        )
+
+    def fit(self, X, y) -> None:
+        """Train the model on the provided data."""
+        self.model.fit(X, y)
+
+    def predict(self, X, gait_length=1) -> np.ndarray:
+        predicted_values = []
+        for _ in range(0, gait_length):
+            y_pred = self.model.predict(np.array(X).reshape(1, -1))
+            action_mean_value, action_std_value = self.data.action_interval[X]
+            lower_bound = action_mean_value - 2 * action_std_value
+            upper_bound = action_mean_value + 2 * action_std_value
+            choices = range(int(lower_bound), int(upper_bound))
+            y_pred_clipped = np.clip(
+                y_pred,
+                random.choice(choices),
+                random.choice(choices),
+            )
+            predicted_values.append(y_pred_clipped)
+        return predicted_values
+
+    def evaluate(self, X_val, y_val, X_test, y_test) -> None:
+        """Evaluate model performance against val and test set."""
+        y_val_pred = self.model.predict(X_val)
+        val_mae = mean_absolute_error(y_val, y_val_pred)
+        val_mse = mean_squared_error(y_val, y_val_pred)
+        val_rmse = mean_squared_error(y_val, y_val_pred, squared=False)
+        val_r2 = r2_score(y_val, y_val_pred)
+
+        print(
+            "Validation Metrics: \n"
+            f"MAE: {val_mae} \n"
+            f"MSE: {val_mse} \n"
+            f"RMSE: {val_rmse} \n"
+            f"R-squared (R2): {val_r2}\n"
+        )
+
+        y_test_pred = self.model.predict(X_test)
+        # Calculate evaluation metrics on the test set
+        test_mae = mean_absolute_error(y_test, y_test_pred)
+        test_mse = mean_squared_error(y_test, y_test_pred)
+        test_rmse = mean_squared_error(y_test, y_test_pred, squared=False)
+        test_r2 = r2_score(y_test, y_test_pred)
+
+        print(
+            "Test Metrics: \n"
+            f"MAE: {test_mae} \n"
+            f"MSE: {test_mse} \n"
+            f"RMSE: {test_rmse} \n"
+            f"R-squared (R2): {test_r2}\n"
+        )
+
+    def save(self, fp="../data/model/gait_values_model.pkl"):
+        """Save the model."""
+        joblib.dump(self.model, fp)
+
+    @classmethod
+    def load(cls, fp="../data/model/gait_values_model.pkl"):
+        """load the model."""
+        loaded_model = joblib.load(fp)
+        loaded_data = NormValuesData.load()
+        instance = cls(data=loaded_data)
         instance.model = loaded_model
         return instance

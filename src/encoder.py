@@ -34,7 +34,7 @@ class LabelEncoder:
         if isinstance(data[0], str):
             encoded = np.zeros(len(data), dtype=int)
             for index, item in enumerate(data):
-                encoded[index] = self.class_to_index.get(item, "<Undefined>")
+                encoded[index] = self.class_to_index.get(item)
         if isinstance(data[0], list):
             encoded = []
             for element in data:
@@ -60,3 +60,6 @@ class LabelEncoder:
         with open(fp, "r") as fp:
             kwargs = json.load(fp=fp)
         return cls(**kwargs)
+
+    def to_json(self):
+        return self.class_to_index
