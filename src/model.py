@@ -101,9 +101,9 @@ class ActionModel:
         predictions = self.model.predict(padded_test_case)
         predicted_classes = predictions.argmax(axis=1)
         predicted_action = self.encoder.decode(predicted_classes)
-        if predicted_action == X[-1] and predicted_action == X[-2]:
-            predicted_classes = predictions.argsort(axis=1)[-2]
-            predicted_action = self.encoder.decode(predicted_classes)
+        if predicted_action[0] == X[-1] and predicted_action[0] == X[-2]:
+            second_best_predicted_classes = predictions.argsort(axis=1)[:, -2:-1]
+            predicted_action = self.encoder.decode(second_best_predicted_classes[0])
         return predicted_action
 
     def predict(self, X) -> int:
