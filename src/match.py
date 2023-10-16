@@ -5,7 +5,7 @@ from collections import Counter
 import numpy as np
 from matplotlib import pyplot as plt
 
-from src.utils import save_to_json
+from utils import save_to_json
 
 
 class Match:
