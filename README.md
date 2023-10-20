@@ -1,5 +1,5 @@
-# Footbar
-Technical assessment for Footbar application
+# Marvel
+Technical assessment for application
 
 ## My Approach:
 
@@ -21,8 +21,8 @@ These instructions will help you set up and run the project on your local machin
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/amiramsadek12/Footbar.git
-   cd Footbar
+   git clone https://github.com/amiramsadek12/Technical-assessment.git
+   cd Technical-assessment
 
 2. Create a Conda environment (replace env_name with your preferred environment name):
    ```bash
@@ -41,6 +41,6 @@ You may use VSCode to run the `entry.ipynb` notebook and follow the provided ins
 
 #### TODOs:
 - Complete the test for all classes
-- Implement `Re-inforcment Learning` instead of the hacky approach in [**ActionModel.predict_standalone**](https://github.com/amiramsadek12/Footbar/blob/main/src/model.py)
+- Implement `Re-inforcment Learning` instead of the hacky approach in [**ActionModel.predict_standalone**](https://github.com/amiramsadek12/Technical-assessment/blob/main/src/model.py)
 - Create a `FastAPI` server to expose model endpoint to make it possible to ship it through a `Docker` container.
 
